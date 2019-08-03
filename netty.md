@@ -16,7 +16,7 @@ b.bind(8888).sync();
 initAndRegister()
 doBind0()
 初始化这个服务器对应的channel，通过端口号绑定到选择器上去
-### 初始化注册channel
+### 初始化注册channel(initAndRegister())
 new一个channel，初始化这个channel，注册这个channel到某个对象上去
 #### 创建一个channel
 我们通过反射的方式，创建channel，我们在channel这个方法中传入的是NioServerSocketChannel，我们通过channelFactory创建。
@@ -25,3 +25,23 @@ new一个channel，初始化这个channel，注册这个channel到某个对象�
 #### 初始化channel
 最开始添加配置，自己的和接入的连接的，最重要的是在serverChannel的流水线处理器加入了一个接入器，这个作用就是一直接收新的请求
 #### 将这个channel register到某个对象
+invokeHandlerAddedIfNeeded()执行的就是handlerAdded，然后就是
+pipeline.fireChannelRegistered();控制台显示为channelRegistered
+### doBind0()
+doBind0()异步的执行channelActive
+调用到jdk底层做端口绑定，并触发active事件，active触发的时候，真正做服务端口绑定
+## netty新连接接入
+1，检测到有新的连接
+2，将新的连接注册到worker线程组
+3，注册新连接的读事件
+### 检测到有新的连接
+服务端的channel会不断的检测新的连接
+boss reactor线程轮询到accept事件，表示有新的连接接入了，调用channel(服务端的channel)的unsafe来操作。
+unsafe就是channel的底层操作实现者
+NioMessageUnsafe的read方法
+### 注册到reactor线程
+不断的读取消息doReadMessages ，新接入的连接都会执行pipeline.fireChannelRead()，经历服务端的洗礼pipeline.fireChannelReadComplete()
+#### doReadMessages
+javaChannel().accept(),有感兴趣的事件，然后获取到客户端的channel(返回jdk底层nio创建的一条channel),所有接收的channel组成一个list,其中的每一个channel的创建都是绑定read事件
+#### pipeline.fireChannelRead(NioSocketChannel)
+所有的客户端连接，现在已经是channel，我们进入到服务端的接收器中，执行channelRead()
