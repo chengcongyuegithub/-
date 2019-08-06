@@ -425,3 +425,336 @@ public static int f(int num,int p)
         return res;
     }
 ```
+## 打印1到最大的n位数
+### 非递归
+```
+public static void way1(int n)
+{
+        char[] chas=new char[n];
+        for(int i=0;i<chas.length;i++)
+        {
+            chas[i]='0';
+        }
+        while(increment(chas))
+        {
+            printNum(chas);
+        }
+}
+public static boolean increment(char[] chas)
+{
+        int curNum;
+        int plusNext=0;
+        for(int i=chas.length-1;i>=0;i--)
+        {
+            curNum=chas[i]-'0'+plusNext;
+            if(i==chas.length-1)
+            {
+                curNum++;
+            }
+            if(curNum>9)
+            {
+                if(i==0) return false;
+                curNum-=10;
+                chas[i]=(char)(curNum+'0');
+                plusNext=1;
+            }
+            else
+            {
+                chas[i]=(char)(curNum+'0');
+                break;
+            }
+        }
+        return true;
+}
+public static void printNum(char[] chas)
+{
+        boolean isBegin=true;
+        for(int i=0;i<chas.length;i++)
+        {
+            if(isBegin&&chas[i]!='0') isBegin=false;
+            if(!isBegin)
+                System.out.print(chas[i]);
+        }
+        if(!isBegin)
+            System.out.println();
+}
+```
+### 递归
+```
+public static void way2(int n)
+{
+        char[] chas=new char[n];
+        for(int i=0;i<chas.length;i++)
+        {
+            chas[i]='0';
+        }
+        for(int i=0;i<10;i++)
+        {
+            chas[0]=(char)(i+'0');
+            process(chas,1,n);
+        }
+}
+public static void process(char[] chas,int index,int n)
+{
+        if(n==index)
+        {
+            printNum(chas);
+            return ;
+        }
+        for(int i=0;i<10;i++)
+        {
+            chas[index]=(char)(i+'0');
+            process(chas,index+1,n);
+        }
+}
+```
+### 实现细节
+## 在O(1)删除链表
+```
+public static void deleteNode1Time(Node node)
+{
+        Node next=node.next;
+        node.value=next.value;
+        node.next=next.next;
+}
+```
+需要讨论的问题就是，我们无法删除最后一个节点，我们没办法用最后一个节点的后面一个替换
+## 调整数组顺序使奇数位于偶数前面
+### 不能保证相对位置的
+```
+public static void parition(int[] arr,int l,int r)
+    {
+         int n=arr.length;//偶数
+         int index=0;
+         while(index<n)
+         {
+             if((arr[index]&1)==0)//偶数
+             {
+                 swap(arr,index,--n);
+             }else
+             {
+                 index++;
+             }
+         }
+    }
+```
+### 保证相对位置的
+```
+public static void f(int[] arr)
+   {
+       int index=0;
+       int index2;
+       while(index<arr.length)
+       {
+           while(index<arr.length&&(arr[index]&1)!=0)
+           {
+               index++;
+           }
+           //index 找到偶数
+           //index2 找到奇数
+           index2=index+1;
+           while(index2<arr.length&&(arr[index2]&1)==0)
+           {
+               index2++;
+           }
+           if(index2<arr.length)
+           {
+               int tmp=arr[index2];
+               for(int i=index2;i>index;i--)
+               {
+                   arr[i]=arr[i-1];
+               }
+               arr[index++]=tmp;
+           }else
+           {
+               break;
+           }
+       }
+   }
+```
+使用到了两个变量，两个index
+## 输入一个链表，输出该链表中倒数第k个结点。
+```
+public static Node f(Node head,int k)
+    {
+        Node cur=head;
+        while(cur!=null) {
+            cur = cur.next;
+            k--;
+        }
+        cur=head;
+        for(int i=k;i!=0;i++)
+        {
+            cur=cur.next;
+        }
+        return cur;
+    }
+```
+## 逆置链表
+```
+public static Node reverseList(Node head)
+{
+        Node next=null;
+        Node pre=null;
+        Node cur=head;
+
+        while(cur!=null)
+        {
+            next=cur.next;
+            cur.next=pre;
+            pre=cur;
+            cur=next;
+        }
+        return pre;
+}
+```
+## 合并两个升序的链表
+```
+public static Node mergeTwoList(Node head1,Node head2)
+    {
+        Node head=head1.value>head2.value?head2:head1;
+        Node cur1=head==head1?head1:head2;
+        Node cur2=head==head1?head2:head1;
+        Node next=null;
+        Node pre=null;
+        while(cur1!=null&&cur2!=null)
+        {
+            if(cur1.value<=cur2.value)
+            {
+                 pre=cur1;
+                 cur1=cur1.next;
+            }else
+            {
+                 next=cur2.next;
+                 pre.next=cur2;
+                 cur2.next=cur1;
+                 pre=cur2;
+                 cur2=next;
+            }
+        }
+        pre.next=cur1==null?cur1:cur2;
+        return head;
+    }
+```
+## t1是否包括t1的子结构
+```
+ public static boolean isCon(Node node, Node node2) {
+         if(node2==null)
+         {
+             return true;
+         }
+         if(node==null)
+         {
+             return false;
+         }
+         return isCheck(node,node2)||isCon(node.left,node)||isCon(node.right,node);
+    }
+
+    public static boolean isCheck(Node node1, Node node2)
+    {
+        if(node2==null)
+        {
+            return true;
+        }
+        if(node1==null||node1.value!=node2.value) return false;
+        return isCheck(node1.left,node2.left)&&isCheck(node1.right, node2.right);
+    }
+```
+### 实现细节
+在第一个函数中，我们首先要有两个判断，就是node1，node2为空的判断，然后就是isCheck的判断主要也是为空的判断
+```
+第一个函数中为空的判断
+if(node1==null) return false;
+if(node2==null) return true;
+第二个函数为空的判断
+if(node2==null) return true;
+if(node1==null||两个节点的值不相等) return false;
+```
+思路：两层递归函数的使用，isCheck是以每个节点开始的。
+### 二叉树的镜像
+```
+ public void Mirror(TreeNode root) {
+        if(root==null) return ;
+        TreeNode tmp=root.right;
+        root.right=root.left;
+        root.left=tmp;
+        Mirror(root.left);
+        Mirror(root.right);
+    }
+```
+实际上就是先序遍历的修改
+## 旋转打印二维数组
+```
+public static ArrayList<Integer> printMatrix(int[][] arr)
+    {
+        ArrayList<Integer> list=new ArrayList<>();
+        int startl=0;
+        int startc=0;
+        int endl=arr.length-1;
+        int endc=arr[0].length-1;
+        while(startc<=endc&&startl<=endl)
+        {
+            printMatrixEdge(arr,startl++,startc++,endl--,endc--,list);
+        }
+        return list;
+    }
+    public static void printMatrixEdge(int[][] arr,int startl,int startc,int endl,int endc,ArrayList<Integer> list)
+    {
+        if(startl==endl)//只有一行
+        {
+             for(int i=startc;i<=endc;i++)
+             {
+                 list.add(arr[startl][i]);
+             }
+        }else if(startc==endc)//只有一列
+        {
+             for(int i=startl;i<=endl;i++)
+             {
+                list.add(arr[i][startc]);
+             }
+        }else
+        {
+            int curl=startl;
+            int curc=startc;
+            while(curc<endc)
+            {
+                System.out.println(arr[startl][curc]+" ");
+                list.add(arr[startl][curc]);
+                curc++;
+            }
+            while(curl<endl)
+            {
+                System.out.println(arr[curl][endl]+" ");
+                list.add(arr[curl][endc]);
+                curl++;
+            }
+            while(curc>startc)
+            {
+                list.add(arr[endl][curc]);
+                curc--;
+            }
+            while(curl>startl)
+            {
+                list.add(arr[curl][startc]);
+                curl--;
+            }
+        }
+    }
+```
+### 实现细节
+一共两个函数，第一个函数负责循环圈，第二个函数打印圈的内容，第二个函数中要分三种情况
+```
+如果只有一行
+如果只有一列
+以及普通情况
+```
+## 栈的压入和弹出序列
+### 实现细节
+我们使用到一个辅助栈，这个辅助栈的作用就是保留现场，我们以遍历这个入栈序列为中心，每次都要将入栈序列入栈一次辅助栈，每一次做这道题，就想1，2，3，4，5 和4，3，5，2，1这个例子
+```
+两个下标
+辅助栈
+每一次s都入一次push元素
+循环
+return s.isEmpty()
+```

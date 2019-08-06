@@ -45,3 +45,21 @@ NioMessageUnsafe的read方法
 javaChannel().accept(),有感兴趣的事件，然后获取到客户端的channel(返回jdk底层nio创建的一条channel),所有接收的channel组成一个list,其中的每一个channel的创建都是绑定read事件
 #### pipeline.fireChannelRead(NioSocketChannel)
 所有的客户端连接，现在已经是channel，我们进入到服务端的接收器中，执行channelRead()
+child.pipeline().addLast(childHandler);
+childGroup.register(child);
+----->next().register(channel);//worker reactor线程组中选择一个reactor线程
+----->
+doRegister();
+当前的channel绑定到当前线程的选择器，后续的channel的轮询事件处理，都是这个线程处理
+### 注册读事件
+## reactor线程
+### NioEventLoop创建
+EventLoopGroup mainGroup = new NioEventLoopGroup();
+其中传入的是一个空的executor，所以我们NioEventLoopGroup会创建一个ThreadPerTaskExecutor，然后我们会通过这个ThreadPerTaskExecutor来执行newChild，每一个newChild就是new NioEventLoop，每一个NioEventLoop在有任务的时候就会启动。
+### NioEventLoop的run方法
+循环执行
+select----》process selected key ----》run task
+首先我们获取到该线程的所有channel事件，产生处理IO事件的channel，处理任务队列
+#### select
+每次一循环开始，wakeup设置为false
+
